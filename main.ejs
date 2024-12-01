@@ -1,0 +1,285 @@
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+const DetectiveGame = () => {
+  const [gameStage, setGameStage] = useState('login');
+  const [username, setUsername] = useState('');
+  const [gender, setGender] = useState('');
+  const [currentArea, setCurrentArea] = useState('ยุหว่า');
+  const [selectedSuspect, setSelectedSuspect] = useState(null);
+  const [suspectDetails, setSuspectDetails] = useState(null);
+  const [gameScore, setGameScore] = useState(0);
+
+  // ข้อมูลสถานการณ์ทุจริตตัวอย่าง
+  const scenarioData = {
+    'ยุหว่า': {
+      villageConversation: [
+        "เมื่อวานนี้มีคนเห็นนายกฯ ขนเอกสารออกจากที่ทำการหมู่บ้านตอนดึก",
+        "ได้ยินมาว่ามีการโอนงบประมาณผิดบัญชี",
+        "เงินที่ควรจะใช้ซ่อมถนนหายไปไหนไม่รู้"
+      ],
+      suspectsList: [
+        {
+          name: "นายกสมชาย",
+          age: 52,
+          occupation: "นายกองค์การบริหารส่วนตำบล",
+          suspicionLevel: 80,
+          description: "เป็นคนมีอิทธิพลในพื้นที่ ชอบใช้เงินฟุ่มเฟือย มีบ้านราคาแพงโดยไม่มีรายได้ชัดเจน"
+        },
+        {
+          name: "เจ้าหน้าที่การเงิน วิไล",
+          age: 45,
+          occupation: "หัวหน้าการเงิน อบต.",
+          suspicionLevel: 60,
+          description: "มีพฤติกรรมปกปิดเอกสารทางการเงิน ไม่ยอมให้ตรวจสอบบัญชี"
+        },
+        {
+          name: "ช่างประจำตำบล สมศักดิ์",
+          age: 38,
+          occupation: "ช่างซ่อมบำรุง",
+          suspicionLevel: 40,
+          description: "เคยมีส่วนรู้เห็นในโครงการก่อสร้างที่มีการทุจริต"
+        }
+      ],
+      criminalEvidence: {
+        documentPicture: "เอกสารการโอนงบประมาณที่มีรอยขูดลบ",
+        suspectPicture: "รูปนายกสมชายกำลังขนเอกสารยามค่ำคืน"
+      },
+      crimeDetails: "การทุจริตงบประมาณการซ่อมแซมถนนในหมู่บ้าน"
+    }
+  };
+
+  const stages = {
+    login: () => (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Card className="w-[400px]">
+          <CardHeader>
+            <CardTitle>เข้าสู่ระบบ</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <input 
+              type="text" 
+              placeholder="ชื่อผู้ใช้" 
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full p-2 mb-4 border rounded"
+            />
+            <Button 
+              onClick={() => setGameStage('description')} 
+              disabled={!username}
+              className="w-full"
+            >
+              เข้าสู่ระบบ
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    ),
+    description: () => (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Card className="w-[600px]">
+          <CardHeader>
+            <CardTitle>คำอธิบายเกม</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>ยินดีต้อนรับสู่เกมนักสืบสืบสวนคดีทุจริต คุณจะต้องสืบสวนคดีต่างๆ ในอำเภอสันป่าตอง</p>
+            <Button 
+              onClick={() => setGameStage('gender-select')} 
+              className="w-full mt-4"
+            >
+              ต่อไป
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    ),
+    'gender-select': () => (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Card className="w-[600px]">
+          <CardHeader>
+            <CardTitle>เลือกตัวละคร</CardTitle>
+          </CardHeader>
+          <CardContent className="flex space-x-4">
+            <Button 
+              onClick={() => {
+                setGender('male');
+                setGameStage('map');
+              }} 
+              className="flex-1"
+            >
+              นักสืบชาย
+            </Button>
+            <Button 
+              onClick={() => {
+                setGender('female');
+                setGameStage('map');
+              }} 
+              className="flex-1"
+            >
+              นักสืบหญิง
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    ),
+    map: () => (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Card className="w-[800px]">
+          <CardHeader>
+            <CardTitle>แผนที่อำเภอสันป่าตอง</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4">
+              {['ยุหว่า', 'แม่ปูคา', 'สันกลาง', 'สันทราย', 'บวกค้าง', 
+                'ออนใต้', 'น้ำบ่อหลวง', 'มะขามหลวง', 'ท่าวังพร้าว', 'ป่าบง'].map((area) => (
+                <Button 
+                  key={area} 
+                  onClick={() => {
+                    setCurrentArea(area);
+                    setGameStage('scenario');
+                  }}
+                  className="w-full"
+                >
+                  {area}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    ),
+    scenario: () => (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Card className="w-[800px]">
+          <CardHeader>
+            <CardTitle>สถานการณ์สืบสวน: {currentArea}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>รายละเอียดสถานการณ์ทุจริตใน{currentArea}</p>
+            <Button 
+              onClick={() => setGameStage('investigation')} 
+              className="w-full mt-4"
+            >
+              เริ่มการสืบสวน
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    ),
+    investigation: () => (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+        <Card className="w-full max-w-4xl">
+          <CardHeader>
+            <CardTitle>การสอบสวนคดีทุจริตที่ {currentArea}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* บทสนทนาชาวบ้าน */}
+            <div className="mb-6">
+              <h3 className="text-lg font-bold mb-2">บทสนทนาของชาวบ้าน:</h3>
+              {scenarioData[currentArea].villageConversation.map((conversation, index) => (
+                <p key={index} className="mb-2 p-2 bg-white rounded shadow-sm">
+                  {conversation}
+                </p>
+              ))}
+            </div>
+
+            {/* หลักฐานเบื้องต้น */}
+            <div className="mb-6">
+              <h3 className="text-lg font-bold mb-2">หลักฐานเบื้องต้น:</h3>
+              <div className="flex space-x-4">
+                <div className="bg-white p-4 rounded shadow-sm">
+                  <p>{scenarioData[currentArea].criminalEvidence.documentPicture}</p>
+                </div>
+                <div className="bg-white p-4 rounded shadow-sm">
+                  <p>{scenarioData[currentArea].criminalEvidence.suspectPicture}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* รายชื่อผู้ต้องสงสัย */}
+            <div>
+              <h3 className="text-lg font-bold mb-2">ผู้ต้องสงสัย:</h3>
+              <div className="grid grid-cols-3 gap-4">
+                {scenarioData[currentArea].suspectsList.map((suspect) => (
+                  <div 
+                    key={suspect.name} 
+                    onClick={() => {
+                      setSelectedSuspect(suspect.name);
+                      setSuspectDetails(suspect);
+                    }}
+                    className={`bg-white p-4 rounded shadow-sm cursor-pointer 
+                      ${selectedSuspect === suspect.name ? 'border-2 border-blue-500' : ''}`}
+                  >
+                    {suspect.name}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* รายละเอียดผู้ต้องสงสัย */}
+            {suspectDetails && (
+              <div className="mt-6 bg-white p-4 rounded shadow-sm">
+                <h4 className="text-lg font-bold mb-2">{suspectDetails.name}</h4>
+                <p>อายุ: {suspectDetails.age}</p>
+                <p>อาชีพ: {suspectDetails.occupation}</p>
+                <p>คำอธิบาย: {suspectDetails.description}</p>
+                <p>ระดับความน่าสงสัย: {suspectDetails.suspicionLevel}%</p>
+              </div>
+            )}
+
+            {/* ปุ่มสรุปผลการสอบสวน */}
+            <Button 
+              onClick={() => setGameStage('conclusion')}
+              disabled={!selectedSuspect}
+              className="w-full mt-4"
+            >
+              สรุปผลการสอบสวน
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    ),
+    conclusion: () => {
+      const selectedSuspectData = scenarioData[currentArea].suspectsList.find(
+        suspect => suspect.name === selectedSuspect
+      );
+      const score = selectedSuspectData ? selectedSuspectData.suspicionLevel : 0;
+
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+          <Card className="w-full max-w-4xl">
+            <CardHeader>
+              <CardTitle>สรุปผลการสอบสวน</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center">
+                <h3 className="text-2xl font-bold mb-4">คดีทุจริตที่ {currentArea}</h3>
+                <p className="mb-4">{scenarioData[currentArea].crimeDetails}</p>
+                <p>คุณเลือก: {selectedSuspect}</p>
+                <p>คะแนนความน่าสงสัย: {score} คะแนน</p>
+
+                <div className="mt-6 bg-white p-4 rounded shadow-sm">
+                  <h4 className="text-lg font-bold mb-2">หากพบเจอในชีวิตจริง สามารถร้องเรียนได้ที่:</h4>
+                  <ul>
+                    <li>สำนักงานป.ป.ช. โทร. 1205</li>
+                    <li>สำนักงานการตรวจเงินแผ่นดิน (สตง.) โทร. 0 2271 5871-5</li>
+                    <li>สายด่วนป้องกันการทุจริต โทร. 1556</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+  };
+
+  return (
+    <div>
+      {stages[gameStage]()}
+    </div>
+  );
+};
+
+export default DetectiveGame;
